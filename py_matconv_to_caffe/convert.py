@@ -5,7 +5,7 @@ import caffe
 
 def process(matconv_net):
     data = L.DummyData(shape=dict(dim=[1, 3, 224, 224]))
-    label = L.DummyData(shape=dict(dim=[1, 101]))
+    label = L.DummyData(shape=dict(dim=[1]))
     n = caffe.NetSpec()
     n.data = data
     n.label = label
@@ -95,13 +95,15 @@ def dagnn_DropOut(bottom, label, mcn_layer, mcn_layer_params):
     dr = mcn_layer.block.rate
     if mcn_layer.block.frozen != 0:
         raise ValueError('I do not know what to do with mcn_layer.block.frozen != parameter.')
-    return L.DropOut(*bottom, dropout_param={'dropout_ratio': dr})
+    return L.Dropout(*bottom, dropout_param={'dropout_ratio': dr})
 
 
 def dagnn_Loss(bottom, label, mcn_layer, mcn_layer_params):
     loss_type = mcn_layer.block.loss
     if loss_type == 'softmaxlog':
-        return L.Softmax(*bottom)
+        if len(bottom) > 1:
+            bottom = bottom[0]
+        return L.Softmax(bottom)
     elif loss_type == 'classerror':
         return L.Accuracy(*bottom, top_k=1)
     elif loss_type == 'topkerror':

@@ -6,7 +6,7 @@ import convert
 import utils
 import os.path
 import os
-
+import caffe
 
 def main():
     argv = sys.argv
@@ -23,10 +23,14 @@ def main():
     caffe_netspec = convert.process(matconv_net)
     prototxt = str(caffe_netspec.to_proto())
 
+    # net = caffe.Net()
+
     output_proto_fn = os.path.join(args.output_dir,
                                    '%s.prototxt' % os.path.splitext(os.path.basename(args.matconvnet_file))[0])
     with open(output_proto_fn, 'w') as prototxt_file:
         prototxt_file.write(prototxt)
+
+    caffe.Net(output_proto_fn, caffe.TEST)
 
 if __name__ == '__main__':
     sys.exit(main())
