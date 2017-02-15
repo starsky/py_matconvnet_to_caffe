@@ -7,6 +7,7 @@ import utils
 import os.path
 import os
 
+
 def main():
     argv = sys.argv
     # Parse arguments
