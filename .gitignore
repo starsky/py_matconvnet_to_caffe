@@ -1,0 +1,8 @@
+/data/
+*.pyc
+.idea/*
+*.swp
+.ipynb_checkpoints
+tests/tmp/
+/test_data
+wrkspace/
