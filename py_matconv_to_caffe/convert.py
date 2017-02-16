@@ -1,7 +1,7 @@
 from caffe import layers as L
 from caffe import params as P
 import caffe
-
+import numpy as np
 
 def process(matconv_net):
     data = L.DummyData(shape=dict(dim=[1, 3, 224, 224]))
@@ -25,6 +25,12 @@ def create_lr_params_dic(matconv_params_list):
     for mcn_lr_params in matconv_params_list:
         lr_params_dic[mcn_lr_params.name] = {'lr_mult': mcn_lr_params.learningRate,
                                              'decay_mult': mcn_lr_params.weightDecay}
+    return lr_params_dic
+
+def create_learned_params_dic(matconv_params_list):
+    lr_params_dic = {}
+    for mcn_lr_params in matconv_params_list:
+        lr_params_dic[mcn_lr_params.name] = mcn_lr_params.value
     return lr_params_dic
 
 
@@ -113,3 +119,30 @@ def dagnn_Loss(bottom, label, mcn_layer, mcn_layer_params):
         return L.Accuracy(*bottom, top_k=top_k)
     else:
         raise ValueError('Unknown loss type')
+
+def conver_conv_lerned_filter(mcn_filter_bank):
+    sh = mcn_filter_bank.shape
+    if len(sh) == 2:
+        ret = np.zeros((sh[-1], sh[-2], 1, 1))
+    elif len(sh) == 4:
+        ret = np.zeros((sh[-1], sh[-2], sh[-3], sh[-4]))
+    else:
+        raise ValueError('Did not expect other filter bank size')
+    if len(sh) == 2:
+        ret[:, :, 0, 0] = np.transpose(mcn_filter_bank) #Not sure about this transpose
+    else:
+        for i in range(mcn_filter_bank.shape[-1]):
+            for c in range(mcn_filter_bank.shape[-2]):
+                ret[i, c, :, :] = mcn_filter_bank[:, :, c, i]
+    return ret
+
+
+def add_params(net, mcn_net):
+    lr_params_dic = create_learned_params_dic(mcn_net.params)
+    for mcn_layer in filter(lambda x: len(x.params) > 0, mcn_net.layers):
+        layer_name = mcn_layer.name
+        learned_params = get_multi_keys(lr_params_dic, mcn_layer.params)
+        net.params[layer_name][0].data[:, :, :, :] = conver_conv_lerned_filter(learned_params[0]) #np.ones((64,3,3,3)) #learned_params[0]
+        if len(learned_params) == 2: #bias exists
+            net.params[layer_name][1].data[:] = learned_params[1]
+    return net

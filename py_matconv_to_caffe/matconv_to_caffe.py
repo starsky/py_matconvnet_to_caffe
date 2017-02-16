@@ -22,15 +22,19 @@ def main():
     matconv_net = utils.load_matconvnet_from_file(args.matconvnet_file)
     caffe_netspec = convert.process(matconv_net)
     prototxt = str(caffe_netspec.to_proto())
-
-    # net = caffe.Net()
-
     output_proto_fn = os.path.join(args.output_dir,
                                    '%s.prototxt' % os.path.splitext(os.path.basename(args.matconvnet_file))[0])
     with open(output_proto_fn, 'w') as prototxt_file:
         prototxt_file.write(prototxt)
 
-    caffe.Net(output_proto_fn, caffe.TEST)
+    net = caffe.Net(output_proto_fn, caffe.TEST)
+
+    # print net.params['conv1_1'][0].data
+    # print net.params['conv1_1'][0].data.shape
+    net = convert.add_params(net, matconv_net['net'])
+    output_model_fn = os.path.join(args.output_dir,
+                                   '%s.caffemodel' % os.path.splitext(os.path.basename(args.matconvnet_file))[0])
+    net.save(output_model_fn)
 
 if __name__ == '__main__':
     sys.exit(main())
