@@ -1,7 +1,7 @@
 function create_test_data_conv1_1_one_filter(case_id)
 
 if case_id == 1
-    layer_id = 2;
+    var_id = 2;
     params_id = 1;
     params_bias_id = 2;
 end
@@ -19,6 +19,6 @@ net.params(params_id).value(:,:,3,3) = test_filter;
 
 net.eval(inputs);
 
-f1_reply = net.vars(layer_id).value(:,:,1);
+f1_reply = net.vars(var_id).value(:,:,1);
 save(fullfile(output_dir, 'in_img.mat'), 'in_img')
 save(fullfile(output_dir,'f1_reply.mat'), 'f1_reply')

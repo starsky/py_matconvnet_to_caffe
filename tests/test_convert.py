@@ -91,6 +91,20 @@ class TestConv(unittest.TestCase):
 
         self.assertTrue(np.allclose(np.rollaxis(mat_filter_value, 2, 0), f1_reply, atol=1e-4))
 
+    def first_pool_layer(self, case_id):
+        test_net, test_img = self.before(case_id)
+
+        # load data to net
+        test_img = np.rollaxis(test_img, 2, 0)  # to have dim [channelxHxW]
+        test_net.blobs['data'].data[...] = test_img
+        test_net.forward()
+
+        f1_reply = test_net.blobs['pool1'].data[0, :, :, :]
+        mat_filter_value = scipy.io.loadmat(join(self.test_data_dir, 'f1_reply_pool.mat'),
+                                            struct_as_record=False, squeeze_me=True)['f1_reply']
+
+        self.assertTrue(np.allclose(np.rollaxis(mat_filter_value, 2, 0), f1_reply, atol=1e-4))
+
     # def test_score(self):
     #     self.test_data_dir = '../test_data'
     #     test_net = caffe.Net(join(self.test_data_dir, 'ucf101-img-vgg16-split1.prototxt'),
