@@ -44,6 +44,7 @@ class TestConv(unittest.TestCase):
 
     def test_first_fc_layer(self):
         self.first_fc_layer(1, 'fc6')
+        self.first_fc_layer(1, 'fc7')
 
     def first_conv_layer_one_filter(self, case_id):
         net, test_img = self.before(case_id)
