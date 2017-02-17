@@ -120,6 +120,7 @@ def dagnn_Loss(bottom, label, mcn_layer, mcn_layer_params):
     else:
         raise ValueError('Unknown loss type')
 
+
 def conver_conv_lerned_filter(mcn_filter_bank):
     sh = mcn_filter_bank.shape
     if len(sh) == 2:
@@ -131,9 +132,9 @@ def conver_conv_lerned_filter(mcn_filter_bank):
     if len(sh) == 2:
         ret[:, :, 0, 0] = np.transpose(mcn_filter_bank) #Not sure about this transpose
     else:
-        for i in range(mcn_filter_bank.shape[-1]):
-            for c in range(mcn_filter_bank.shape[-2]):
-                ret[i, c, :, :] = mcn_filter_bank[:, :, c, i]
+        mcn_filter_bank = np.rollaxis(mcn_filter_bank, 3, 0)
+        mcn_filter_bank = np.rollaxis(mcn_filter_bank, 3, 1)
+        ret[...] = mcn_filter_bank
     return ret
 
 
