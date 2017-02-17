@@ -45,6 +45,7 @@ class TestConv(unittest.TestCase):
     def test_first_fc_layer(self):
         self.first_fc_layer(1, 'fc6')
         self.first_fc_layer(1, 'fc7')
+        self.first_fc_layer(1, 'layer38')
 
     def first_conv_layer_one_filter(self, case_id):
         net, test_img = self.before(case_id)
@@ -127,16 +128,9 @@ class TestConv(unittest.TestCase):
                                             struct_as_record=False, squeeze_me=True)[layer_id]
 
         self.assertTrue(np.allclose(mat_filter_value, f1_reply, atol=1e-4))
+
     # def test_score(self):
-    #     self.test_data_dir = '../test_data'
-    #     test_net = caffe.Net(join(self.test_data_dir, 'ucf101-img-vgg16-split1.prototxt'),
-    #                          join(self.test_data_dir, 'ucf101-img-vgg16-split1.caffemodel'), caffe.TEST)
-    #
-    #     # I know it is strange to load img from mat file but I found that cv2.imread and vl_imreadjpeg from
-    #     # matlab returns images with mrse 0.8. This is not a huge difference :) but if we want to check
-    #     # if Conv layers (matlab, caffe) return same output, it i better to feed them with exactly same input
-    #     test_img = scipy.io.loadmat(join(self.test_data_dir, 'in_img.mat'),
-    #                                 struct_as_record=False, squeeze_me=True)['in_img']
+    #     test_net, test_img = self.before(1)
     #
     #     # load data to net
     #     test_img = np.rollaxis(test_img, 2, 0)  # to have dim [channelxHxW]
