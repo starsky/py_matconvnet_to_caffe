@@ -1,4 +1,5 @@
 /data/
+*.m~
 *.pyc
 .idea/*
 *.swp
