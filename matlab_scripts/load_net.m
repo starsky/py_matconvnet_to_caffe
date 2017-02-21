@@ -14,6 +14,8 @@ net.mode = 'test';
 net.conserveMemory = false;
 
 tst_img = vl_imreadjpeg({fullfile(img_path, 'frame000001.jpg')});
+%tst_img = vl_imreadjpeg({'/home/mkopersk/data/two-streams/ucf101/jpegs_256/v_ApplyEyeMakeup_g04_c03/frame000001.jpg'});
+%Uncoment above to test on any other image
 
 in_img = single(zeros(224,224,3,1));
 in_img(:,:,:,1) = single(tst_img{1}(1:224,1:224,:));
