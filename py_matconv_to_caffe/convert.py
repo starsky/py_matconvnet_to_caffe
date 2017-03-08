@@ -3,6 +3,7 @@ from caffe import params as P
 import caffe
 import numpy as np
 
+
 def process(matconv_net):
     data = L.DummyData(shape=dict(dim=[1, 3, 224, 224]))
     label = L.DummyData(shape=dict(dim=[1]))
@@ -27,6 +28,7 @@ def create_lr_params_dic(matconv_params_list):
                                              'decay_mult': mcn_lr_params.weightDecay}
     return lr_params_dic
 
+
 def create_learned_params_dic(matconv_params_list):
     lr_params_dic = {}
     for mcn_lr_params in matconv_params_list:
@@ -36,6 +38,8 @@ def create_learned_params_dic(matconv_params_list):
 
 def layer_factory(bottom, label, mcn_layer, mcn_layer_params):
     fun = globals().get(mcn_layer.type.replace('.', '_'))
+    if fun is None:
+        raise ValueError('%s layer not implemented' % mcn_layer.type)
     return fun(bottom, label, mcn_layer, mcn_layer_params)
 
 
@@ -71,6 +75,7 @@ def wrap_params(params_dict, mcn_kernelsize, mcn_pad, mcn_stride):
     else:
         params_dict['pad_h'], params_dict['pad_w'] = pad
     return params_dict
+
 
 def dagnn_Conv(bottom, label, mcn_layer, mcn_layer_params):
     block = mcn_layer.block
@@ -119,6 +124,10 @@ def dagnn_Loss(bottom, label, mcn_layer, mcn_layer_params):
         return L.Accuracy(*bottom, top_k=top_k)
     else:
         raise ValueError('Unknown loss type')
+
+
+#def dagnn_BatchNorm(bottom, label, mcn_layer, mcn_layer_params):
+#    return L.BatchNorm(*bottom)
 
 
 def conver_conv_lerned_filter(mcn_filter_bank):
