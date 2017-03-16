@@ -85,7 +85,7 @@ class TestConv(unittest.TestCase):
         mat_filter_value = scipy.io.loadmat(join(self.test_data_dir, 'f1_reply_full.mat'),
                                             struct_as_record=False, squeeze_me=True)['f1_reply']
 
-        self.assertTrue(np.allclose(np.rollaxis(mat_filter_value, 2, 0), f1_reply, atol=1e-4))
+        self.assertTrue(np.allclose(np.rollaxis(mat_filter_value, 2, 0), f1_reply, atol=1e-3))
 
     def first_conv_layer__with_relu(self, case_id, layer_id):
         test_net, test_img = self.before(case_id)
