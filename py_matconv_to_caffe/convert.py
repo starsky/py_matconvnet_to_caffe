@@ -6,7 +6,9 @@ from layers import layer_factory
 
 
 def process(matconv_net):
-    data = L.DummyData(shape=dict(dim=[1, 3, 224, 224]))
+    data_shape = matconv_net['net'].meta.normalization.imageSize
+    data_shape = [1, data_shape[-1], data_shape[0], data_shape[1]]
+    data = L.DummyData(shape=dict(dim=data_shape))
     label = L.DummyData(shape=dict(dim=[1]))
     n = caffe.NetSpec()
     n.data = data
