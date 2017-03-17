@@ -12,7 +12,7 @@ import caffe
 
 def convert_model(matconvnet_file, output_dir):
     matconv_net = utils.load_matconvnet_from_file(matconvnet_file)
-    caffe_netspec = convert_model_params.process(matconv_net)
+    caffe_netspec = convert_model_params.convert_net(matconv_net)
     prototxt = str(caffe_netspec.to_proto())
     output_proto_fn = os.path.join(output_dir,
                                    '%s.prototxt' % os.path.splitext(os.path.basename(matconvnet_file))[0])

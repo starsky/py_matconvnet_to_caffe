@@ -10,6 +10,17 @@ layers).
 """
 
 
+def add_params(net, mcn_net):
+    lr_params_dic = create_learned_params_dic(mcn_net.params)
+    for mcn_layer in filter(lambda x: len(x.params) > 0, mcn_net.layers):
+        layer_name = mcn_layer.name
+        learned_params = get_values_for_multi_keys(lr_params_dic, mcn_layer.params)
+        net.params[layer_name][0].data[:, :, :, :] = conver_conv_lerned_filter(learned_params[0]) #np.ones((64,3,3,3)) #learned_params[0]
+        if len(learned_params) == 2: #bias exists
+            net.params[layer_name][1].data[:] = learned_params[1]
+    return net
+
+
 def conver_conv_lerned_filter(mcn_filter_bank):
     sh = mcn_filter_bank.shape
     if len(sh) == 2:
@@ -25,17 +36,6 @@ def conver_conv_lerned_filter(mcn_filter_bank):
         mcn_filter_bank = np.rollaxis(mcn_filter_bank, 3, 1)
         ret[...] = mcn_filter_bank
     return ret
-
-
-def add_params(net, mcn_net):
-    lr_params_dic = create_learned_params_dic(mcn_net.params)
-    for mcn_layer in filter(lambda x: len(x.params) > 0, mcn_net.layers):
-        layer_name = mcn_layer.name
-        learned_params = get_values_for_multi_keys(lr_params_dic, mcn_layer.params)
-        net.params[layer_name][0].data[:, :, :, :] = conver_conv_lerned_filter(learned_params[0]) #np.ones((64,3,3,3)) #learned_params[0]
-        if len(learned_params) == 2: #bias exists
-            net.params[layer_name][1].data[:] = learned_params[1]
-    return net
 
 
 def create_learned_params_dic(matconv_params_list):

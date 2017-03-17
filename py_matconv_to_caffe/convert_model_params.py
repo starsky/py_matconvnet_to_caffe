@@ -14,7 +14,7 @@ layers).
 """
 
 
-def process(matconv_net):
+def convert_net(matconv_net):
     data_shape = matconv_net['net'].meta.normalization.imageSize
     data_shape = [1, data_shape[-1], data_shape[0], data_shape[1]]
     data = L.DummyData(shape=dict(dim=data_shape))
