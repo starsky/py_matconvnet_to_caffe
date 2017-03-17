@@ -16,7 +16,12 @@ def add_params(net, mcn_net):
     for mcn_layer in filter(lambda x: len(x.params) > 0, mcn_net.layers):  # Filter layers that have trainable weights
         layer_name = mcn_layer.name
         trained_weights = get_values_for_multi_keys(trained_weights_dic, mcn_layer.params)
-        net.params[layer_name][0].data[:, :, :, :] = _convert_trained_convolution_filter(trained_weights[0])
+        if mcn_layer.type == 'dagnn.BatchNorm':
+            raise NotImplemented()
+        elif mcn_layer.type == 'dagnn.Conv':
+            net.params[layer_name][0].data[:, :, :, :] = _convert_trained_convolution_filter(trained_weights[0])
+        else:
+            raise ValueError('Unknown layer weight transfer method for %s' % mcn_layer.type)
         if len(trained_weights) == 2:  # bias exists
             net.params[layer_name][1].data[:] = trained_weights[1]
     return net

@@ -15,7 +15,7 @@ layers).
 
 
 def convert_net(matconv_net):
-    data_shape = matconv_net.meta.normalization.imageSize
+    data_shape = matconv_net.meta.normalization.imageSize[:3]
     data_shape = [1, data_shape[-1], data_shape[0], data_shape[1]]
     data = L.DummyData(shape=dict(dim=data_shape))
     label = L.DummyData(shape=dict(dim=[1]))

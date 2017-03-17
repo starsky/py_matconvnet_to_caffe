@@ -28,10 +28,15 @@ def _dagnn_ReLU(bottom, mcn_layer, mcn_layer_params):
 def _dagnn_Pooling(bottom, mcn_layer, mcn_layer_params):
     params = _prepare_input_params(mcn_layer_params)
     block = mcn_layer.block
-    params['pool'] = P.Pooling.MAX if block.method == 'max' else P.Pooling.MIN
+    if block.method == 'max':
+        params['pool'] = P.Pooling.MAX
+    elif block.method == 'avg':
+        params['pool'] = P.Pooling.AVE
+    else:
+        raise ValueError('Pooling type: %s not implemented.' % block.method)
     params = _wrap_params(params, block.poolSize, block.pad, block.stride)
-    if len(block.opts) > 0:
-        raise ValueError('mcn_layer.block has opts record which I did not expect.')
+    if len(block.opts) > 0 and not (block.opts == 'cuDNN'):
+        raise ValueError('mcn_layer.block has opts record which I did not expect. %s' % block.opts)
     return L.Pooling(*bottom, **params)
 
 
@@ -59,8 +64,14 @@ def _dagnn_Loss(bottom, mcn_layer, mcn_layer_params):
         raise ValueError('Unknown loss type')
 
 
-#def dagnn_BatchNorm(bottom, label, mcn_layer, mcn_layer_params):
-#    return L.BatchNorm(*bottom)
+def _dagnn_BatchNorm(bottom, mcn_layer, mcn_layer_params):
+    params = _prepare_input_params(mcn_layer_params)
+    params['eps'] = mcn_layer.block.epsilon
+    return L.BatchNorm(*bottom, **params)
+
+
+def _dagnn_Sum(bottom, mcn_layer, mcn_layer_params):
+    return L.Eltwise(*bottom, eltwise_param={'operation': P.Eltwise.SUM})
 
 
 def _wrap_params(params_dict, mcn_kernelsize, mcn_pad, mcn_stride):

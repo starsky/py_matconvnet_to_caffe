@@ -36,6 +36,9 @@ class TestConv(unittest.TestCase):
     def test_verify_vgg16_TVL1Flow(self):
         self.verify('test_data/ucf101-TVL1flow-vgg16-split1/')
 
+    def test_verify_resnet50_img(self):
+        self.verify('test_data/ucf101-img-resnet-50-split1/')
+
     def verify(self, test_dir):
         test_net, test_img, reference_values = self.before(test_dir)
 
