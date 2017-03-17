@@ -7,6 +7,7 @@ import caffe
 from os.path import join
 import scipy.io
 import numpy as np
+import py_matconv_to_caffe.matconv_to_caffe
 
 
 class TestConv(unittest.TestCase):
@@ -16,7 +17,9 @@ class TestConv(unittest.TestCase):
     def setUpClass(cls):
         caffe.set_mode_cpu()
 
-    def before(self, work_dir):
+    def before(self, test_dir):
+        work_dir = join(test_dir, 'workspace')
+        py_matconv_to_caffe.matconv_to_caffe.convert_model(join(test_dir, 'net.mat'), work_dir)
         net = caffe.Net(join(work_dir, 'net.prototxt'),
                         join(work_dir, 'net.caffemodel'), caffe.TEST)
 
@@ -29,8 +32,14 @@ class TestConv(unittest.TestCase):
                                             struct_as_record=False, squeeze_me=True)['ret']
         return net, test_img, reference_values
 
-    def test_verify_net(self):
-        test_net, test_img, reference_values = self.before('../test_data/ucf101-img-vgg16-split1/workspace/')
+    def test_verify_vgg16_img(self):
+        self.verify('../test_data/ucf101-img-vgg16-split1/')
+
+    def test_verify_vgg16_TVL1Flow(self):
+        self.verify('../test_data/ucf101-TVL1flow-vgg16-split1/')
+
+    def verify(self, test_dir):
+        test_net, test_img, reference_values = self.before(test_dir)
 
         #load data to net
         test_img = np.rollaxis(test_img, 2, 0)  # to have dim [channelxHxW]
@@ -48,7 +57,7 @@ class TestConv(unittest.TestCase):
                 # if values is a vector we need to squeeze caffe vector as it holds dimensions with
                 # single values
                 test_values = test_values.squeeze()
-            self.assertTrue(np.allclose(values, test_values, atol=1e-3), msg=layer_name)
+            self.assertTrue(np.allclose(values, test_values, atol=1e-2), msg=layer_name)
 
 if __name__ == '__main__':
     unittest.main()
