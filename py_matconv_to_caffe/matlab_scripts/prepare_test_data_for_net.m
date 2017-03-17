@@ -2,8 +2,9 @@ function [ input_mat, activations ] =...
     prepare_test_data_for_net(net_file, frames_dir, output_dir)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
-    run(fullfile(fileparts(mfilename('fullpath')), ...
-             '..', '..', 'matconvnet','matlab', 'vl_setupnn.m')) ;
+%    run(fullfile(fileparts(mfilename('fullpath')), ...
+%             '..', '..', 'matconvnet','matlab', 'vl_setupnn.m')) ;
+    vl_setupnn
     net = load(net_file);
     net = net.net;
     net = dagnn.DagNN.loadobj(net);

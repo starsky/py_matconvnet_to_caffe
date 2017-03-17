@@ -1,8 +1,6 @@
 function [ output_mat ] = jpeg_to_mat( input_dir, output_file, cropp_size)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
-run(fullfile(fileparts(mfilename('fullpath')), ...
-             '..', '..', 'matconvnet','matlab', 'vl_setupnn.m')) ;
 
     files = dir(fullfile(input_dir,'*.jpg'));
     file_list = {};
