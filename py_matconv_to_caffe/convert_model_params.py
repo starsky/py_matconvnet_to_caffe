@@ -15,7 +15,7 @@ layers).
 
 
 def convert_net(matconv_net):
-    data_shape = matconv_net['net'].meta.normalization.imageSize
+    data_shape = matconv_net.meta.normalization.imageSize
     data_shape = [1, data_shape[-1], data_shape[0], data_shape[1]]
     data = L.DummyData(shape=dict(dim=data_shape))
     label = L.DummyData(shape=dict(dim=[1]))
@@ -26,9 +26,9 @@ def convert_net(matconv_net):
     # dictionary with name of output variable of given layer as a key and layer as a value
     layers_dic = {'input': data, 'label': label}
     # dictionary with layer name as key and dict as a value. Dict contains lr_mult and decay_mult
-    # which values are obtained from matconv_net['net'].params
-    lr_params_dic = _create_lr_params_dic(matconv_net['net'].params)
-    for mcn_layer in matconv_net['net'].layers:
+    # which values are obtained from matconv_net.params
+    lr_params_dic = _create_lr_params_dic(matconv_net.params)
+    for mcn_layer in matconv_net.layers:
         # searching for input layer based on input/output variable names
         bottom = get_values_for_multi_keys(layers_dic, mcn_layer.inputs)
         layer_name = mcn_layer.name
