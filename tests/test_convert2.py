@@ -16,22 +16,21 @@ class TestConv(unittest.TestCase):
     def setUpClass(cls):
         caffe.set_mode_cpu()
 
-    def before(self, case_id):
-        self.test_data_dir = join('../test_data', 'case%d_wrk' % case_id)
-        net = caffe.Net(join(self.test_data_dir, 'ucf101-img-vgg16-split1.prototxt'),
-                        join(self.test_data_dir, 'ucf101-img-vgg16-split1.caffemodel'), caffe.TEST)
+    def before(self, work_dir):
+        net = caffe.Net(join(work_dir, 'net.prototxt'),
+                        join(work_dir, 'net.caffemodel'), caffe.TEST)
 
         # I know it is strange to load img from mat file but I found that cv2.imread and vl_imreadjpeg from
         # matlab returns images with mrse 0.8. This is not a huge difference :) but if we want to check
         # if Conv layers (matlab, caffe) return same output, it i better to feed them with exactly same input
-        test_img = scipy.io.loadmat(join(self.test_data_dir,'in_img.mat'),
-                                    struct_as_record=False, squeeze_me=True)['in_img']
-        reference_values = scipy.io.loadmat('../test_data/chopped.mat',
+        test_img = scipy.io.loadmat(join(work_dir, 'net_input.mat'),
+                                    struct_as_record=False, squeeze_me=True)['output_mat']
+        reference_values = scipy.io.loadmat(join(work_dir, 'activations.mat'),
                                             struct_as_record=False, squeeze_me=True)['ret']
         return net, test_img, reference_values
 
     def test_verify_net(self):
-        test_net, test_img, reference_values = self.before(1)
+        test_net, test_img, reference_values = self.before('../test_data/ucf101-img-vgg16-split1/workspace/')
 
         #load data to net
         test_img = np.rollaxis(test_img, 2, 0)  # to have dim [channelxHxW]

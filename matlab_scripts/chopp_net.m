@@ -1,17 +1,7 @@
-function [ ret ] = chopp_net(net_file, input_mat_fn, output_file, label )
+function [ ret ] = chopp_net(net, input_mat, output_file, label )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
-    run(fullfile(fileparts(mfilename('fullpath')), ...
-             '..', '..', 'matconvnet','matlab', 'vl_setupnn.m')) ;
-    net = load(net_file);
-    net = net.net;
-    net = dagnn.DagNN.loadobj(net);
-    net.mode = 'test';
-    net.conserveMemory = false;
-    
-    input_mat = load(input_mat_fn);
-    input_mat = input_mat.in_img;
-    
+
     batch = single(zeros([size(input_mat), 1]));
     batch(:, :, :, 1) = input_mat;
     inputs = {'input', batch, 'label', label};
