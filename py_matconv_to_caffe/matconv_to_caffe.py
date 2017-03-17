@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 from argparse import ArgumentParser
 import sys
-import convert
+import convert_model_params
+import convert_model_weights
 import utils
 import os.path
 import os
@@ -11,7 +12,7 @@ import caffe
 
 def convert_model(matconvnet_file, output_dir):
     matconv_net = utils.load_matconvnet_from_file(matconvnet_file)
-    caffe_netspec = convert.process(matconv_net)
+    caffe_netspec = convert_model_params.process(matconv_net)
     prototxt = str(caffe_netspec.to_proto())
     output_proto_fn = os.path.join(output_dir,
                                    '%s.prototxt' % os.path.splitext(os.path.basename(matconvnet_file))[0])
@@ -22,7 +23,7 @@ def convert_model(matconvnet_file, output_dir):
 
     # print net.params['conv1_1'][0].data
     # print net.params['conv1_1'][0].data.shape
-    net = convert.add_params(net, matconv_net['net'])
+    net = convert_model_weights.add_params(net, matconv_net['net'])
     output_model_fn = os.path.join(output_dir,
                                    '%s.caffemodel' % os.path.splitext(os.path.basename(matconvnet_file))[0])
     net.save(output_model_fn)

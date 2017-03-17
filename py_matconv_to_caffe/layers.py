@@ -4,39 +4,45 @@ import caffe
 import numpy as np
 
 
-def dagnn_Conv(bottom, label, mcn_layer, mcn_layer_params):
+def layer_factory(bottom, mcn_layer, mcn_layer_params):
+    fun = globals().get('_%s' % mcn_layer.type.replace('.', '_'))
+    if fun is None:
+        raise ValueError('%s layer not implemented' % mcn_layer.type)
+    return fun(bottom, mcn_layer, mcn_layer_params)
+
+
+def _dagnn_Conv(bottom, mcn_layer, mcn_layer_params):
     block = mcn_layer.block
-    params = prepare_input_params(mcn_layer_params)
-    #     params = {'param': np.zeros((3,3,3,64))}
+    params = _prepare_input_params(mcn_layer_params)
     params['num_output'] = block.size[-1]
-    params = wrap_params(params, block.size, block.pad, block.stride)
+    params = _wrap_params(params, block.size, block.pad, block.stride)
     return L.Convolution(*bottom, **params)
 
 
-def dagnn_ReLU(bottom, label, mcn_layer, mcn_layer_params):
+def _dagnn_ReLU(bottom, mcn_layer, mcn_layer_params):
     if mcn_layer.block.leak != 0:
         raise ValueError('mcn_layer.block.leak is non zero. Do not know how to initialize Caffe Layer.')
     return L.ReLU(*bottom, in_place=True)
 
 
-def dagnn_Pooling(bottom, label, mcn_layer, mcn_layer_params):
-    params = prepare_input_params(mcn_layer_params)
+def _dagnn_Pooling(bottom, mcn_layer, mcn_layer_params):
+    params = _prepare_input_params(mcn_layer_params)
     block = mcn_layer.block
     params['pool'] = P.Pooling.MAX if block.method == 'max' else P.Pooling.MIN
-    params = wrap_params(params, block.poolSize, block.pad, block.stride)
+    params = _wrap_params(params, block.poolSize, block.pad, block.stride)
     if len(block.opts) > 0:
         raise ValueError('mcn_layer.block has opts record which I did not expect.')
     return L.Pooling(*bottom, **params)
 
 
-def dagnn_DropOut(bottom, label, mcn_layer, mcn_layer_params):
+def _dagnn_DropOut(bottom, mcn_layer, mcn_layer_params):
     dr = mcn_layer.block.rate
     if mcn_layer.block.frozen != 0:
         raise ValueError('I do not know what to do with mcn_layer.block.frozen != parameter.')
     return L.Dropout(*bottom, dropout_param={'dropout_ratio': dr})
 
 
-def dagnn_Loss(bottom, label, mcn_layer, mcn_layer_params):
+def _dagnn_Loss(bottom, mcn_layer, mcn_layer_params):
     loss_type = mcn_layer.block.loss
     if loss_type == 'softmaxlog':
         if len(bottom) > 1:
@@ -56,14 +62,8 @@ def dagnn_Loss(bottom, label, mcn_layer, mcn_layer_params):
 #def dagnn_BatchNorm(bottom, label, mcn_layer, mcn_layer_params):
 #    return L.BatchNorm(*bottom)
 
-def layer_factory(bottom, label, mcn_layer, mcn_layer_params):
-    fun = globals().get(mcn_layer.type.replace('.', '_'))
-    if fun is None:
-        raise ValueError('%s layer not implemented' % mcn_layer.type)
-    return fun(bottom, label, mcn_layer, mcn_layer_params)
 
-
-def wrap_params(params_dict, mcn_kernelsize, mcn_pad, mcn_stride):
+def _wrap_params(params_dict, mcn_kernelsize, mcn_pad, mcn_stride):
     """
     In matconvnet each parameter which has param wrt heigh and width is saved as separate
     variable. For instance kernel_h and kernel_w. But in caffe if kernel_h and kernel_w
@@ -94,10 +94,16 @@ def wrap_params(params_dict, mcn_kernelsize, mcn_pad, mcn_stride):
     return params_dict
 
 
-def prepare_input_params(mcn_layer_params):
+def _prepare_input_params(mcn_layer_params):
     """
     Prepares params dictionary template based on parameters obtained from
-    matconvnet Net.layer.params.
+    matconvnet mcn_layer_params are params obtianed from net.params(layer_name).
+    The params in mcn_layer_prams are in general learining rate, and weight decay.
+    But there can be more than one group eg. separate lr and wd for weights and form bias.
+    To be compatible with caffe we need to return empty dict if there are no params (eg. for ReLu layer),
+    dict of structure {'param' : dict}, when there is one group, and finally dict of structure
+    {'param': list} when there is more than one group.
+
     :param mcn_layer_params:
     :return:
     """
@@ -108,4 +114,3 @@ def prepare_input_params(mcn_layer_params):
     else:
         params = {'param': mcn_layer_params}
     return params
-

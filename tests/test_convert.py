@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .context import sample
-
 import unittest
 import caffe
 from os.path import join
