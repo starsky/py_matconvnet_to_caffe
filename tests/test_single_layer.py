@@ -45,7 +45,9 @@ class TestSingleLayer(unittest.TestCase):
 
         n = caffe.NetSpec()
         n.input_layer = input_layer
-        n.__setattr__(batch_norm_layer.name, caffe_layer)
+        layer_name = '%s_INTER%02d' % (batch_norm_layer.name, 0)
+        n.__setattr__(layer_name, caffe_layer[0])
+        n.__setattr__(batch_norm_layer.name, caffe_layer[1])
 
         prototxt = str(n.to_proto())
         output_proto_fn = join('test_data/batch_norm_test/workspace', 'net.prototxt')
@@ -70,7 +72,7 @@ class TestSingleLayer(unittest.TestCase):
         reference_wo_scale = np.rollaxis(reference_wo_scale, 2, 0)
         reference_wo_scale = np.rollaxis(reference_wo_scale, 3, 0)
 
-        values_wo_scale = net.blobs[batch_norm_layer.name].data
+        values_wo_scale = net.blobs[layer_name].data
 
         np.testing.assert_array_almost_equal(reference_wo_scale, values_wo_scale, decimal=1)
 

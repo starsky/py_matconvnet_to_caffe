@@ -69,10 +69,16 @@ def _dagnn_Loss(bottom, mcn_layer, mcn_layer_params):
 
 
 def _dagnn_BatchNorm(bottom, mcn_layer, mcn_layer_params):
-    params = _prepare_input_params(mcn_layer_params)
-    params['eps'] = mcn_layer.block.epsilon
-    params['use_global_stats'] = True
-    return L.BatchNorm(*bottom, **params)
+    params_norm_layer = _prepare_input_params([]) # mcn_layer_params[-1])
+    params_norm_layer['eps'] = mcn_layer.block.epsilon
+    params_norm_layer['use_global_stats'] = True
+    norm_layer = L.BatchNorm(*bottom, **params_norm_layer)
+
+    params_scale_layer = _prepare_input_params(mcn_layer_params[:-1])
+    params_scale_layer['axis'] = 0
+    params_scale_layer['num_axes'] = 2
+    params_scale_layer['bias_term'] = True
+    return [norm_layer, L.Scale(norm_layer, **params_scale_layer)]
 
 
 def _dagnn_Sum(bottom, mcn_layer, mcn_layer_params):

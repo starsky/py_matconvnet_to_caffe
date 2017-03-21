@@ -36,7 +36,7 @@ def convert_net(matconv_net):
         # add just created layer to dict. Key value is a matconvnet output variable name
         layers_dic[mcn_layer.outputs] = top[-1]
         for i, t in enumerate(top[:-1]):
-            n.__setattr__('%s_INTER%02d' % (layer_name, i), top)
+            n.__setattr__('%s_INTER%02d' % (layer_name, i), t)
         n.__setattr__(layer_name, top[-1])
     return n
 
