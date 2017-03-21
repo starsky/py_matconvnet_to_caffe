@@ -8,7 +8,11 @@ def layer_factory(bottom, mcn_layer, mcn_layer_params):
     fun = globals().get('_%s' % mcn_layer.type.replace('.', '_'))
     if fun is None:
         raise ValueError('%s layer not implemented' % mcn_layer.type)
-    return fun(bottom, mcn_layer, mcn_layer_params)
+    layers = fun(bottom, mcn_layer, mcn_layer_params)
+    if isinstance(layers, (list, tuple)):
+        return layers
+    else:
+        return [layers]
 
 
 def _dagnn_Conv(bottom, mcn_layer, mcn_layer_params):
