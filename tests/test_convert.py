@@ -60,7 +60,7 @@ class TestConv(unittest.TestCase):
                 # if values is a vector we need to squeeze caffe vector as it holds dimensions with
                 # single values
                 test_values = test_values.squeeze()
-            np.testing.assert_allclose(test_values, values,  err_msg=layer_name, atol=atol, verbose=True)
+            np.testing.assert_allclose(test_values, values,  err_msg=layer_name, atol=atol, rtol=1e-2, verbose=True)
 
 if __name__ == '__main__':
     unittest.main()
