@@ -19,6 +19,8 @@ def add_params(net, mcn_net):
         if mcn_layer.type == 'dagnn.BatchNorm':
             _add_weights_BatchNorm(net, layer_name, trained_weights)
         elif mcn_layer.type == 'dagnn.Conv':
+            if layer_name == 'fc1000':
+                print 'Check'
             net.params[layer_name][0].data[:, :, :, :] = _convert_trained_convolution_filter(trained_weights[0])
             if len(trained_weights) == 2:  # bias exists
                 net.params[layer_name][1].data[:] = trained_weights[1]

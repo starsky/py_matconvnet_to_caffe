@@ -26,7 +26,7 @@ def _dagnn_Conv(bottom, mcn_layer, mcn_layer_params):
 def _dagnn_ReLU(bottom, mcn_layer, mcn_layer_params):
     if mcn_layer.block.leak != 0:
         raise ValueError('mcn_layer.block.leak is non zero. Do not know how to initialize Caffe Layer.')
-    return L.ReLU(*bottom, in_place=True)
+    return L.ReLU(*bottom)#, in_place=True)
 
 
 def _dagnn_Pooling(bottom, mcn_layer, mcn_layer_params):

@@ -76,6 +76,48 @@ class TestSingleLayer(unittest.TestCase):
 
         np.testing.assert_array_almost_equal(reference_wo_scale, values_wo_scale, decimal=1)
 
+    def test_batch_norm_with_scale_layer(self):
+        matconv_net = utils.load_matconvnet_from_file('test_data/ucf101-img-resnet-50-split1/net.mat')['net']
+        batch_norm_layer_id = 1;
+        input_layer = L.DummyData(shape=dict(dim=[10, 64, 112, 112]))
+        batch_norm_layer = matconv_net.layers[batch_norm_layer_id]
+        lr_params_dic = py_matconv_to_caffe.convert_model_params._create_lr_params_dic(matconv_net.params)
+        caffe_layer = _dagnn_BatchNorm([input_layer], batch_norm_layer, utils.get_values_for_multi_keys(lr_params_dic, batch_norm_layer.params))
+
+        n = caffe.NetSpec()
+        n.input_layer = input_layer
+        layer_name = batch_norm_layer.name
+        n.__setattr__('%s_INTER%02d' % (batch_norm_layer.name, 0), caffe_layer[0])
+        n.__setattr__(batch_norm_layer.name, caffe_layer[1])
+
+        prototxt = str(n.to_proto())
+        output_proto_fn = join('test_data/batch_norm_test/workspace', 'net.prototxt')
+        with open(output_proto_fn, 'w') as prototxt_file:
+            prototxt_file.write(prototxt)
+        net = caffe.Net(output_proto_fn, caffe.TEST)
+
+        matconv_net.layers = [matconv_net.layers[batch_norm_layer_id]]
+        net = py_matconv_to_caffe.convert_model_weights.add_params(net, matconv_net)
+
+        input_to_layer = scipy.io.loadmat(join('test_data/batch_norm_test/workspace', 'input_to_batch_norm.mat'),
+                                            struct_as_record=False, squeeze_me=True)['input_to_layer']
+
+        input_to_layer = np.rollaxis(input_to_layer, 2, 0)
+        input_to_layer = np.rollaxis(input_to_layer, 3, 0)
+
+        net.blobs['input_layer'].data[...] = input_to_layer
+        net.forward()
+
+        reference_wo_scale = scipy.io.loadmat(join('test_data/batch_norm_test/workspace', 'activations.mat'),
+                                      struct_as_record=False, squeeze_me=True)['activations']
+        reference_wo_scale = np.rollaxis(reference_wo_scale, 2, 0)
+        reference_wo_scale = np.rollaxis(reference_wo_scale, 3, 0)
+
+        values_wo_scale = net.blobs[layer_name].data
+
+        np.testing.assert_array_almost_equal(reference_wo_scale, values_wo_scale, decimal=1)
+
+
     def batch_norm_radnom_data(self):
         matconv_net = utils.load_matconvnet_from_file('test_data/ucf101-img-resnet-50-split1/net.mat')['net']
         batch_norm_layer_id = 1;
