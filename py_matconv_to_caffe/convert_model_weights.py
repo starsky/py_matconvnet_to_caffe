@@ -17,13 +17,17 @@ def add_params(net, mcn_net):
         layer_name = mcn_layer.name
         trained_weights = get_values_for_multi_keys(trained_weights_dic, mcn_layer.params)
         if mcn_layer.type == 'dagnn.BatchNorm':
-            raise NotImplemented()
+            net.params[layer_name][0].data[...] = np.copy(trained_weights[2][:, 0])
+            # Note that mat_conv_net stores sqrt(var) and caffe stores var in the parameters, that is why
+            # we do power(,2) to before storing var value.
+            net.params[layer_name][1].data[...] = np.power(np.copy(trained_weights[2][:, 1]), 2)
+            net.params[layer_name][2].data[...] = 1
         elif mcn_layer.type == 'dagnn.Conv':
             net.params[layer_name][0].data[:, :, :, :] = _convert_trained_convolution_filter(trained_weights[0])
+            if len(trained_weights) == 2:  # bias exists
+                net.params[layer_name][1].data[:] = trained_weights[1]
         else:
             raise ValueError('Unknown layer weight transfer method for %s' % mcn_layer.type)
-        if len(trained_weights) == 2:  # bias exists
-            net.params[layer_name][1].data[:] = trained_weights[1]
     return net
 
 

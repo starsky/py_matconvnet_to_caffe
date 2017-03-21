@@ -67,6 +67,7 @@ def _dagnn_Loss(bottom, mcn_layer, mcn_layer_params):
 def _dagnn_BatchNorm(bottom, mcn_layer, mcn_layer_params):
     params = _prepare_input_params(mcn_layer_params)
     params['eps'] = mcn_layer.block.epsilon
+    params['use_global_stats'] = True
     return L.BatchNorm(*bottom, **params)
 
 
