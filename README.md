@@ -5,7 +5,7 @@ to [Caffe](http://caffe.berkeleyvision.org/). The project does not require Matla
 if you want to verify your model Matlab will be needed.
 
 ## Installation
-You can either install the project using `pip install https://github.com/starsky/py_matconvnet_to_caffe.git` or you can clone project directly from the GitHub. After cloning the project you can run tests `make test` to verify that code works fine on your machine. Note that to run the tests you need to have Matlab installed. Before running theteste please download test data from [here](ftp://ftp-sop.inria.fr/members/Michal.Koperski/py_matconvnet_2_caffe_test_data.tar.bz2) and unpack the archive to test_data directory.
+You can either install the project using `pip install https://github.com/starsky/py_matconvnet_to_caffe.git` or you can clone project directly from the GitHub. After cloning the project you can run tests `make test` to verify that code works fine on your machine. Note that to run the tests you need to have Matlab installed. Before running the tests please download test data from [here](ftp://ftp-sop.inria.fr/members/Michal.Koperski/py_matconvnet_2_caffe_test_data.tar.bz2) and unpack the archive to test_data directory.
 
 ## Usage
 ```
