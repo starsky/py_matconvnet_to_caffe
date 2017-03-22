@@ -2,9 +2,9 @@ from caffe import layers as L
 import caffe
 from layers import layer_factory
 from utils import get_values_for_multi_keys
-import numpy as np
 from collections import defaultdict
-from _collections import deque
+from collections import deque
+
 """
 This module implements functionality which will convert architecture of the net from matconvnet to
 caffe. Including all parameters - number of layers, type of layers, layers params (eg. kernel size,
@@ -32,17 +32,7 @@ def convert_net(matconv_net):
     # which values are obtained from matconv_net.params
     lr_params_dic = _create_lr_params_dic(matconv_net.params)
 
-
-    layers_by_inputs = defaultdict(list)
-    for layer_id, l in enumerate(matconv_net.layers):
-        if hasattr(l.inputs, 'shape'):
-            for i in l.inputs:
-                layers_by_inputs[i].append((layer_id, l))
-        else:
-            layers_by_inputs[l.inputs].append((layer_id, l))
-    # layers_by_inputs = dict(layers_by_inputs)
-
-    execute_order = dfs(layers_by_inputs, (0, matconv_net.layers[0]))
+    execute_order = _get_execution_order(matconv_net.layers, (0, matconv_net.layers[0]))
     for _, mcn_layer in execute_order:
         # searching for input layer based on input/output variable names
         bottom = get_values_for_multi_keys(layers_dic, mcn_layer.inputs)
@@ -56,21 +46,27 @@ def convert_net(matconv_net):
     return n
 
 
-def dfs(layers_by_inputs, start):
-    path = []
+def _get_execution_order(layers, start):
+    # dictionary with input name as a key and (layer_id, layer) as a value
+    layers_by_inputs = defaultdict(list)
+    for layer_id, l in enumerate(layers):
+        for i in _listify(l.inputs):
+            layers_by_inputs[i].append((layer_id, l))
+    # depth first search stack
     queue = deque()
     queue.append(start)
+    # dctionary which contains name of output variables of already visited layers
     visited = {}
     while len(queue) > 0:
         curr = queue.pop()
-        path.append(curr)
         visited[curr[1].outputs] = True
         for next_layer_id, next_layer in layers_by_inputs[curr[1].outputs]:
-            inputs = [next_layer.inputs] if not hasattr(next_layer.inputs, 'shape') else next_layer.inputs
-            is_ready = None not in [visited.get(inp) for inp in inputs]
+            # it checks if all inputs to given layer has been visited. If no then this layer is not added
+            # to the stack. It will be added when last output which was not ready will be visited.
+            is_ready = None not in [visited.get(inp) for inp in _listify(next_layer.inputs)]
             if is_ready:
                 queue.append((next_layer_id, next_layer))
-    return path
+        yield curr
 
 
 def _create_lr_params_dic(matconv_params_list):
@@ -79,3 +75,10 @@ def _create_lr_params_dic(matconv_params_list):
         lr_params_dic[mcn_lr_params.name] = {'lr_mult': mcn_lr_params.learningRate,
                                              'decay_mult': mcn_lr_params.weightDecay}
     return lr_params_dic
+
+
+def _listify(arg):
+    if isinstance(arg, str) or isinstance(arg, unicode):
+        return [arg]
+    else:
+        return arg
