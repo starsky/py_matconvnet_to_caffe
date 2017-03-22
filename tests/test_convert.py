@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .context import sample
-
 import unittest
 import caffe
 from os.path import join
@@ -38,7 +36,17 @@ class TestConv(unittest.TestCase):
     def test_verify_vgg16_TVL1Flow(self):
         self.verify('test_data/ucf101-TVL1flow-vgg16-split1/')
 
-    def verify(self, test_dir):
+    def test_verify_resnet50_img(self):
+        # 8e-1 of tolerance is not great. My guess it is due to power(,2) in convert_model_weights
+        # This should be done in more stable way.
+        self.verify('test_data/ucf101-img-resnet-50-split1/', atol=8e-1)
+
+    def test_verify_resnet50_flow(self):
+        # 8e-1 of tolerance is not great. My guess it is due to power(,2) in convert_model_weights
+        # This should be done in more stable way.
+        self.verify('test_data/ucf101-TVL1flow-resnet-50-split1/', atol=8e-1)
+
+    def verify(self, test_dir, atol=1e-2    ):
         test_net, test_img, reference_values = self.before(test_dir)
 
         #load data to net
@@ -57,7 +65,7 @@ class TestConv(unittest.TestCase):
                 # if values is a vector we need to squeeze caffe vector as it holds dimensions with
                 # single values
                 test_values = test_values.squeeze()
-            self.assertTrue(np.allclose(values, test_values, atol=1e-2), msg=layer_name)
+            np.testing.assert_allclose(test_values, values,  err_msg=layer_name, atol=atol, rtol=1e-2, verbose=True)
 
 if __name__ == '__main__':
     unittest.main()

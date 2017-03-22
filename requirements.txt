@@ -1,2 +1,5 @@
 nose
 sphinx
+caffe
+scipy
+numpy

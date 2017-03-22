@@ -1,4 +1,4 @@
-function [ input_mat, activations ] =...
+function [ input_mat, activations, net, net_mat ] =...
     prepare_test_data_for_net(net_file, frames_dir, output_dir)
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
@@ -7,6 +7,7 @@ function [ input_mat, activations ] =...
     vl_setupnn
     net = load(net_file);
     net = net.net;
+    net_mat = net;
     net = dagnn.DagNN.loadobj(net);
     net.mode = 'test';
     net.conserveMemory = false;
