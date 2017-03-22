@@ -35,7 +35,7 @@ def main():
     # Parse arguments
     parser = ArgumentParser(description='Converts model saved MatConvNet to Caffe format.')
     # parser.add_argument('-v', '--verbose', action='store_true', help='run verbose')
-    parser.add_argument('matconvnet_file', help='Model in MatConvNet format.')
+    parser.add_argument('matconvnet_file', help='Model in MatConvNet format (eg. net.mat).')
     parser.add_argument('--output_dir', default='.', help='Directory in which Caffe model definition '
                                                           'and model will be saved. By defult the output files '
                                                           'will be saved in current directory.')
