@@ -41,7 +41,12 @@ class TestConv(unittest.TestCase):
         # This should be done in more stable way.
         self.verify('test_data/ucf101-img-resnet-50-split1/', atol=8e-1)
 
-    def verify(self, test_dir, atol=1e-2):
+    def test_verify_resnet50_flow(self):
+        # 8e-1 of tolerance is not great. My guess it is due to power(,2) in convert_model_weights
+        # This should be done in more stable way.
+        self.verify('test_data/ucf101-TVL1flow-resnet-50-split1/', atol=8e-1)
+
+    def verify(self, test_dir, atol=1e-2    ):
         test_net, test_img, reference_values = self.before(test_dir)
 
         #load data to net
