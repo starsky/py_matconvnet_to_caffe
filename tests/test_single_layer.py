@@ -56,7 +56,7 @@ class TestSingleLayer(unittest.TestCase):
         net = caffe.Net(output_proto_fn, caffe.TEST)
 
         matconv_net.layers = [matconv_net.layers[batch_norm_layer_id]]
-        net = py_matconv_to_caffe.convert_model_weights.add_params(net, matconv_net)
+        net = py_matconv_to_caffe.convert_model_weights.add_trained_weights(net, matconv_net)
 
         input_to_layer = scipy.io.loadmat(join('test_data/batch_norm_test/workspace', 'input_to_batch_norm.mat'),
                                             struct_as_record=False, squeeze_me=True)['input_to_layer']
@@ -97,7 +97,7 @@ class TestSingleLayer(unittest.TestCase):
         net = caffe.Net(output_proto_fn, caffe.TEST)
 
         matconv_net.layers = [matconv_net.layers[batch_norm_layer_id]]
-        net = py_matconv_to_caffe.convert_model_weights.add_params(net, matconv_net)
+        net = py_matconv_to_caffe.convert_model_weights.add_trained_weights(net, matconv_net)
 
         input_to_layer = scipy.io.loadmat(join('test_data/batch_norm_test/workspace', 'input_to_batch_norm.mat'),
                                             struct_as_record=False, squeeze_me=True)['input_to_layer']

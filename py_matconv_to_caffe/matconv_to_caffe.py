@@ -24,7 +24,7 @@ def convert_model(matconvnet_file, output_dir):
 
     # print net.params['conv1_1'][0].data
     # print net.params['conv1_1'][0].data.shape
-    net = convert_model_weights.add_params(net, matconv_net)
+    net = convert_model_weights.add_trained_weights(net, matconv_net)
     output_model_fn = os.path.join(output_dir,
                                    '%s.caffemodel' % os.path.splitext(os.path.basename(matconvnet_file))[0])
     net.save(output_model_fn)

@@ -10,7 +10,7 @@ layers).
 """
 
 
-def add_params(net, mcn_net):
+def add_trained_weights(net, mcn_net):
     trained_weights_dic = _create_trained_wights_dict(mcn_net.params)
 
     for mcn_layer in filter(lambda x: len(x.params) > 0, mcn_net.layers):  # Filter layers that have trainable weights
