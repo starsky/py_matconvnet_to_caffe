@@ -10,7 +10,7 @@ layers).
 """
 
 
-def add_trained_weights(net, mcn_net):
+def add_trained_weights(net, mcn_net, rgb2bgr_layer=None):
     trained_weights_dic = _create_trained_wights_dict(mcn_net.params)
 
     for mcn_layer in filter(lambda x: len(x.params) > 0, mcn_net.layers):  # Filter layers that have trainable weights
@@ -19,8 +19,8 @@ def add_trained_weights(net, mcn_net):
         if mcn_layer.type == 'dagnn.BatchNorm':
             _add_weights_BatchNorm(net, layer_name, trained_weights)
         elif mcn_layer.type == 'dagnn.Conv':
-            if layer_name == 'fc1000':
-                print 'Check'
+            if layer_name == rgb2bgr_layer:
+                trained_weights[0] = trained_weights[0][:, :, ::-1, :] # RGB to BGR
             net.params[layer_name][0].data[:, :, :, :] = _convert_trained_convolution_filter(trained_weights[0])
             if len(trained_weights) == 2:  # bias exists
                 net.params[layer_name][1].data[:] = trained_weights[1]
@@ -39,6 +39,7 @@ def _add_weights_BatchNorm(net, layer_name, trained_weights):
 
     net.params[layer_name][0].data[...] = np.copy(trained_weights[0])
     net.params[layer_name][1].data[...] = np.copy(trained_weights[1])
+
 
 def _convert_trained_convolution_filter(mcn_filter_bank):
     sh = mcn_filter_bank.shape
